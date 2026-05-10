@@ -8,4 +8,4 @@ cmds = ["npm i -g bun && bun install"]
 cmds = ["bun run db:generate && bun run build"]
 
 [start]
-cmd = "bun run start"
+cmd = "bun run db:push && bun run start"
