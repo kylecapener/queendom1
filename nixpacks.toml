@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20"]
 cmds = ["npm i -g bun && bun install"]
 
 [phases.build]
-cmds = ["bun run db:generate && bun run build"]
+cmds = ["bun run db:generate && npx prisma db push --skip-generate && bun run build"]
 
 [start]
-cmd = "sh start.sh"
+cmd = "node_modules/.bin/next start"
