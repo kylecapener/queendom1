@@ -31,11 +31,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const contact = await prisma.contact.findUnique({ where: { id: contactId } })
   if (!contact) return NextResponse.json({ error: 'Contact not found' }, { status: 404 })
 
-  await client.messages.create({
-    body,
-    from: process.env.TWILIO_PHONE_NUMBER!,
-    to: contact.phone,
-  })
+  // Normalize to E.164 format (+1XXXXXXXXXX)
+  const digits = contact.phone.replace(/\D/g, '')
+  const toNumber = digits.startsWith('1') ? `+${digits}` : `+1${digits}`
+
+  try {
+    await client.messages.create({
+      body,
+      from: process.env.TWILIO_PHONE_NUMBER!,
+      to: toNumber,
+    })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message ?? 'Twilio error' }, { status: 500 })
+  }
 
   const message = await prisma.message.create({
     data: {
